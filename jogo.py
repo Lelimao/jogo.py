@@ -1,21 +1,63 @@
 import streamlit as st
+import random
 
-st.title("🎮 Pedra, Papel e Tesoura")
+# Placar inicial
+if "player_score" not in st.session_state:
+    st.session_state.player_score = 0
+    st.session_state.computer_score = 0
+    st.session_state.history = []
 
-opcoes = ("pedra", "papel", "tesoura")
+st.title("🎮 Rock, Paper, Scissors vs Computer")
 
-jogador1 = st.selectbox("Jogador 1 escolha:", opcoes)
-jogador2 = st.selectbox("Jogador 2 escolha:", opcoes)
+options = ["rock", "paper", "scissors"]
+emojis = {"rock": "🪨", "paper": "📄", "scissors": "✂️"}
 
-if st.button("Ver resultado"):
+player = st.selectbox("Choose your move:", options)
 
-    if jogador1 == jogador2:
-        st.write("🤝 Empate!")
+if st.button("Play"):
 
-    elif (jogador1 == "pedra" and jogador2 == "tesoura") or \
-         (jogador1 == "tesoura" and jogador2 == "papel") or \
-         (jogador1 == "papel" and jogador2 == "pedra"):
-        st.success("🏆 Jogador 1 venceu!")
+    computer = random.choice(options)
+
+    st.write(f"You chose: {emojis[player]} {player}")
+    st.write(f"Computer chose: {emojis[computer]} {computer}")
+
+    if player == computer:
+        result = "Tie 🤝"
+        st.info(result)
+
+    elif (player == "rock" and computer == "scissors") or \
+         (player == "scissors" and computer == "paper") or \
+         (player == "paper" and computer == "rock"):
+        result = "You win! 🎉"
+        st.success(result)
+        st.session_state.player_score += 1
 
     else:
-        st.success("🏆 Jogador 2 venceu!")
+        result = "Computer wins! 🤖"
+        st.error(result)
+        st.session_state.computer_score += 1
+
+    # Histórico salvo
+    st.session_state.history.append({
+        "You": player,
+        "Computer": computer,
+        "Result": result
+    })
+
+# Placar
+st.subheader("🏆 Score")
+st.write(f"You: {st.session_state.player_score} | Computer: {st.session_state.computer_score}")
+
+# Histórico
+st.subheader("📜 Match History")
+if st.session_state.history:
+    st.table(st.session_state.history)
+else:
+    st.write("No games played yet.")
+
+# Botão para reset
+if st.button("Reset Game"):
+    st.session_state.player_score = 0
+    st.session_state.computer_score = 0
+    st.session_state.history = []
+    st.success("Game reset!")
